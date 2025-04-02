@@ -6,10 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -23,25 +21,33 @@ public class Main {
         }
 
         List<Post> procuraQui = list.stream()
-                .filter(p -> p.getTitle().contains("qui"))
+                .filter(p -> p.getTitle().toLowerCase().contains("qui"))
+                .sorted(Comparator.comparingInt(Post::getId))
                 .toList();
+
+        System.out.println("Posts filtrados e ordenados:");
         procuraQui.forEach(System.out::println);
+        System.out.println("\n");
 
-        List<Integer> ordenaId = list.stream()
-                .map(Post::getId)
-                .sorted()
-                .toList();
-
-        List<Post> ordenarPosts = list.stream()
-                .filter(p -> p.getTitle().contentEquals(ordenaId.toString()))
-                .toList();
-        ordenarPosts.forEach(System.out::println);
-
-        List<Post> agrupar = (List<Post>) list.stream()
+        Map<Integer, Long> agrupadoPorUserId = list.stream()
                 .collect(Collectors.groupingBy(Post::getUserId, Collectors.counting()));
 
-        System.out.println(agrupar);
+        System.out.println("Contagem de posts por userId:");
+        agrupadoPorUserId.forEach((userId, count) -> System.out.println("User " + userId + " -> " + count + " posts"));
+        System.out.println("\n");
 
+        List<String> titulos = procuraQui.stream()
+                .map(Post::getTitle)
+                .toList();
 
+        System.out.println("Títulos dos posts filtrados:");
+        titulos.forEach(System.out::println);
+        System.out.println("\n");
+
+        int somaIds = procuraQui.stream()
+                .mapToInt(Post::getId)
+                .sum();
+
+        System.out.println("Soma total dos IDs dos posts filtrados: " + somaIds);
     }
 }
